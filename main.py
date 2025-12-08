@@ -5,6 +5,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from models import Project,File
 from schemas import ProjectCreate, FileCreate
+import multiprocessing
 
 
 app = FastAPI()
@@ -79,11 +80,25 @@ async def create_file(project_id: int, payload: FileCreate, db: Session = Depend
 
 
 
+@app.get("/files/{file_id}")
+async def get_file(file_id: int, db: Session = Depends(get_db)):
+    file = db.query(File).filter(File.id == file_id).first()
+    if not file:
+        return {"error": "File not found"}
+    return {
+        "id": file.id,
+        "path": file.path,
+        "content": file.content,
+        "language": file.language,
+    }
+
+
+
 
 @app.on_event("startup")
-async def startup():
-    init_db()
-
-    print("Database initialized")
+def startup():
+    if multiprocessing.current_process().name == "MainPricess":
+        init_db()
+        print("Database initialized")
 
 
