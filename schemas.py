@@ -6,3 +6,6 @@ class ProjectCreate(BaseModel):
 class FileCreate(BaseModel):
     path: str
     content: str
+
+class FileUpdate(BaseModel):
+    content: str
